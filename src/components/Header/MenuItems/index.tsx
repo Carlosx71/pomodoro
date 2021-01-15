@@ -24,13 +24,14 @@ const MenuItems: React.FC = () => {
       pageURL: '/',
     },
     {
-      menuTitle: 'Configurações',
-      pageURL: '/config',
-    },
-    {
       menuTitle: 'Histórico de Pomodoros',
       pageURL: '/pomodoroHistory',
     },
+    {
+      menuTitle: 'Configurações',
+      pageURL: '/config',
+    },
+
   ];
   return (
     <>

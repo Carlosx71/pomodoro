@@ -32,6 +32,9 @@ const validationSchema = yup.object({
     .positive()
     .integer()
     .required('Quantos Ciclos completados para ter um Descanso Longo?'),
+  email: yup
+    .string()
+    .required('Favor informar e-mail'),
 });
 
 const Configuration: React.FC = () => {
@@ -40,6 +43,7 @@ const Configuration: React.FC = () => {
     shortRestTime,
     longRestTime,
     cycles,
+    email,
   } = useSelector((state:RootState) => state.configuration);
 
   const dispatch = useDispatch();
@@ -50,6 +54,7 @@ const Configuration: React.FC = () => {
       shortRestTime,
       longRestTime,
       cycles,
+      email,
     },
     validationSchema,
     onSubmit: (values) => {
@@ -118,6 +123,20 @@ const Configuration: React.FC = () => {
             onChange={formik.handleChange}
             error={formik.touched.cycles && Boolean(formik.errors.cycles)}
             helperText={formik.touched.cycles && formik.errors.cycles}
+          />
+          <TextField
+            className={classes.input}
+            fullWidth
+            key="input-email"
+            variant="outlined"
+            id="email"
+            name="email"
+            label="E-mail"
+            type="string"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            error={formik.touched.email && Boolean(formik.errors.email)}
+            helperText={formik.touched.email && formik.errors.email}
           />
           <Button
             className={classes.button}

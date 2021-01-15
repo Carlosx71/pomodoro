@@ -5,6 +5,7 @@ export interface IConfiguration {
   shortRestTime: number,
   longRestTime: number,
   cycles: number,
+  email: string,
 }
 
 const configurationInitialState: IConfiguration = {
@@ -12,6 +13,7 @@ const configurationInitialState: IConfiguration = {
   shortRestTime: 5,
   longRestTime: 25,
   cycles: 4,
+  email: '',
 };
 
 const configurationSlice = createSlice({
@@ -23,6 +25,7 @@ const configurationSlice = createSlice({
       shortRestTime: number,
       longRestTime: number,
       cycles: number,
+      email: string,
     }>) => action.payload,
   },
 });

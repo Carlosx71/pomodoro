@@ -2,11 +2,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  Button, Card, CardActions, CardContent, CardHeader, Grid,
+  Button, Card, CardActions, CardContent, CardHeader, Collapse, Grid, IconButton,
 } from '@material-ui/core';
 import {
   Pause, PlayArrow, Save, Stop,
 } from '@material-ui/icons';
+import CloseIcon from '@material-ui/icons/Close';
+import { Alert } from '@material-ui/lab';
 import FlexContainer from 'components/FlexContainer';
 import { Timer } from 'components/Timer';
 import { useInterval } from 'hooks/use-interval';
@@ -16,6 +18,7 @@ import { secondsToTime } from 'utils/seconds-to-time';
 
 import { IPomodoroStyles, IPomodoroTimerProps } from './interfaces';
 import { PomodoroTimerStyle } from './styles';
+// import IconButton from '@material-ui/core/IconButton';
 
 export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
   const {
@@ -31,6 +34,7 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
     totalWorkingTime,
   } = useSelector((state: RootState) => state.pomodoro);
 
+  const { email } = useSelector((state: RootState) => state.configuration);
   // console.log(totalCycles, totalOfPomodoros, totalWorkingTime);
 
   const dispatch = useDispatch();
@@ -42,23 +46,27 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
   const [cyclesQtdManager, setCyclesQtdManager] = useState(
     new Array(cycles - 1).fill(true),
   );
+  const [open, setOpen] = useState(false);
   const [completedCycles, setCompletedCycles] = useState(0);
   const [fullWorkingTime, setFullWorkingTime] = useState(0);
   const [numberOfPomodoros, setNumberOfPomodoros] = useState(0);
 
   const styledProps: IPomodoroStyles = { isWorking: working };
   const classes = PomodoroTimerStyle(styledProps);
-
   useInterval(() => {
     setMainTime(mainTime - 1);
     if (working) setFullWorkingTime(fullWorkingTime + 1);
   }, timeCounting ? 1000 : null);
 
   const handleWorkStart = useCallback(() => {
-    setTimeCounting(true);
-    setWorking(true);
-    setMainTime(pomodoroTime);
-  }, [pomodoroTime]);
+    if (email !== '') {
+      setTimeCounting(true);
+      setWorking(true);
+      setMainTime(pomodoroTime);
+    } else {
+      setOpen(true);
+    }
+  }, [pomodoroTime, email]);
 
   const handlePlayPause = useCallback(() => {
     setTimeCounting(!timeCounting);
@@ -91,23 +99,48 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
     setWorking(false);
     setResting(false);
     setMainTime(pomodoroTime);
-  }, [pomodoroTime]);
 
-  const handleSave = useCallback(() => {
-    dispatch(savePomodoroSummary({
-      totalCycles: totalCycles + completedCycles,
-      totalOfPomodoros: totalOfPomodoros + numberOfPomodoros,
-      totalWorkingTime: totalWorkingTime + fullWorkingTime,
-    }));
-  }, [
+    try {
+      if (working === true) {
+        dispatch(savePomodoroSummary({
+          totalCycles: totalCycles + completedCycles,
+          totalOfPomodoros: totalOfPomodoros + numberOfPomodoros,
+          totalWorkingTime: totalWorkingTime + fullWorkingTime,
+        }));
+      } else {
+        throw new Error('Não foi possível salvar no store');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, [pomodoroTime,
     completedCycles,
     dispatch,
     fullWorkingTime,
     numberOfPomodoros,
     totalCycles,
     totalOfPomodoros,
-    totalWorkingTime,
-  ]);
+    totalWorkingTime]);
+
+  // const handleSave = useCallback(() => {
+  //   try {
+  //     dispatch(savePomodoroSummary({
+  //       totalCycles: totalCycles + completedCycles,
+  //       totalOfPomodoros: totalOfPomodoros + numberOfPomodoros,
+  //       totalWorkingTime: totalWorkingTime + fullWorkingTime,
+  //     }));
+  //   } catch (error) {
+  //     throw new Error('Não foi possível salvar no store');
+  //   }
+  // }, [
+  //   completedCycles,
+  //   dispatch,
+  //   fullWorkingTime,
+  //   numberOfPomodoros,
+  //   totalCycles,
+  //   totalOfPomodoros,
+  //   totalWorkingTime,
+  // ]);
 
   useEffect(() => {
     if (mainTime > 0) return;
@@ -139,7 +172,6 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
     <FlexContainer>
       <Card>
         <CardHeader
-          className={classes.title}
           title={working ? 'Você está: Trabalhando' : 'Você está: Descansando'}
         />
         <CardContent className={classes.content}>
@@ -173,6 +205,29 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
 
         </CardContent>
         <CardActions className={classes.buttons}>
+          <div className={classes.root}>
+            <Collapse in={open}>
+              <Alert
+                severity="error"
+                action={(
+                  <IconButton
+                    aria-label="close"
+                    color="inherit"
+                    size="small"
+                    onClick={() => {
+                      setOpen(false);
+                    }}
+                  >
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
+          )}
+              >
+                E-mail não informado. Verifique as configurações
+              </Alert>
+            </Collapse>
+          </div>
+        </CardActions>
+        <CardActions className={classes.buttons}>
           <Button onClick={handleWorkStart}>Trabalhar</Button>
           <Button onClick={() => { handleRestStart(false); }}>Descansar</Button>
           <Button
@@ -184,14 +239,15 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
             }
           </Button>
           <Button onClick={handleStop}><Stop /></Button>
-          <Button
+          {/* <Button
             startIcon={<Save />}
             disabled={!stopped}
             onClick={handleSave}
           >
             Salvar
-          </Button>
+          </Button> */}
         </CardActions>
+
       </Card>
     </FlexContainer>
   );
