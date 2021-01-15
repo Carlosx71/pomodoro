@@ -8,19 +8,25 @@ import { linearStyle } from './styles';
 
 import { getAllPomodoro } from '../../services/apiService';
 
-// interface IGet {
-//   _id?: string;
-//   totalOfPomodoros: number;
-//   totalWorkingTime: number;
-//   totalCycles: number;
-// };
-
 const PomodoroHistory: React.FC = () => {
   const [pomodoroHistoryApi, setPomodoroHistoryApi] = useState<IGet[]>([]);
 
   useEffect(() => {
     const getHistoryPomodoro = async (): Promise<void> => {
-      const pomodoroAll = await getAllPomodoro();
+      let pomodoroAll = await getAllPomodoro();
+
+      pomodoroAll = pomodoroAll.map(({
+        totalOfPomodoros, totalWorkingTime, totalCycles, data,
+      }) => ({
+        totalOfPomodoros,
+        totalWorkingTime,
+        totalCycles,
+        data: new Intl.DateTimeFormat('pt-BR', {
+          year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
+        }).format(new Date(data)),
+      }
+      ));
+      // console.log(pomodoroAll);
       setTimeout(() => {
         setPomodoroHistoryApi(pomodoroAll);
       }, 2000);

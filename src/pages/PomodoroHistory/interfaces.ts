@@ -3,4 +3,5 @@ export interface IGet {
   totalOfPomodoros: number;
   totalWorkingTime: number;
   totalCycles: number;
+  data: string;
 };
