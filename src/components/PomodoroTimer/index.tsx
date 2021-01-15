@@ -120,7 +120,8 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
     numberOfPomodoros,
     totalCycles,
     totalOfPomodoros,
-    totalWorkingTime]);
+    totalWorkingTime,
+    working]);
 
   // const handleSave = useCallback(() => {
   //   try {
