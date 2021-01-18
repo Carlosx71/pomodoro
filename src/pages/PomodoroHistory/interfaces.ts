@@ -1,6 +1,6 @@
 export interface IGet {
-  _id?: string;
-  fullWorkingTime: number;
+  _id: string;
+  fullWorkingTime: number | string;
   numberOfPomodoros: number;
   completedCycles: number;
   data: string;
@@ -8,8 +8,9 @@ export interface IGet {
 };
 
 export interface IPost {
-  fullWorkingTime: number;
+  fullWorkingTime: number | string;
   numberOfPomodoros: number;
   completedCycles: number;
   email: string;
+  data: Date;
 };

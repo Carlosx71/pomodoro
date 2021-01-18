@@ -103,7 +103,7 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
     setMainTime(pomodoroTime);
     const pomodoroResPost = async () => {
       const res = await postPomodoroHistory({
-        email, completedCycles, numberOfPomodoros, fullWorkingTime,
+        email, completedCycles, numberOfPomodoros, fullWorkingTime, data: new Date(),
       });
       return res;
     };
