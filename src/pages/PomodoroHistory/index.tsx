@@ -4,7 +4,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import MaterialTable from 'material-table';
 
 import { IGet } from './interfaces';
-import { linearStyle } from './styles';
+import { useStyles } from './styles';
 
 import { getAllPomodoro } from '../../services/apiService';
 
@@ -14,28 +14,26 @@ const PomodoroHistory: React.FC = () => {
   useEffect(() => {
     const getHistoryPomodoro = async (): Promise<void> => {
       let pomodoroAll = await getAllPomodoro();
-
       pomodoroAll = pomodoroAll.map(({
-        totalOfPomodoros, totalWorkingTime, totalCycles, data,
+        numberOfPomodoros, fullWorkingTime, completedCycles, data,
       }) => ({
-        totalOfPomodoros,
-        totalWorkingTime,
-        totalCycles,
+        numberOfPomodoros,
+        fullWorkingTime,
+        completedCycles,
         data: new Intl.DateTimeFormat('pt-BR', {
           year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
         }).format(new Date(data)),
       }
       ));
-      // console.log(pomodoroAll);
       setTimeout(() => {
         setPomodoroHistoryApi(pomodoroAll);
-      }, 2000);
+      }, 1000);
     };
 
     getHistoryPomodoro();
   }, []);
 
-  const classes = linearStyle();
+  const classes = useStyles();
   return (
     <>
       {pomodoroHistoryApi.length === 0 && (

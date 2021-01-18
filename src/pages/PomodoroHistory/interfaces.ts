@@ -1,7 +1,15 @@
 export interface IGet {
   _id?: string;
-  totalOfPomodoros: number;
-  totalWorkingTime: number;
-  totalCycles: number;
+  fullWorkingTime: number;
+  numberOfPomodoros: number;
+  completedCycles: number;
   data: string;
+  email?: string;
+};
+
+export interface IPost {
+  fullWorkingTime: number;
+  numberOfPomodoros: number;
+  completedCycles: number;
+  email: string;
 };

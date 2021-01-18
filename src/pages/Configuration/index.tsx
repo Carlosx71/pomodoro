@@ -34,6 +34,8 @@ const validationSchema = yup.object({
     .required('Quantos Ciclos completados para ter um Descanso Longo?'),
   email: yup
     .string()
+    .trim()
+    .email('Não é um e-mail válido')
     .required('Favor informar e-mail'),
 });
 

@@ -18,7 +18,9 @@ import { secondsToTime } from 'utils/seconds-to-time';
 
 import { IPomodoroStyles, IPomodoroTimerProps } from './interfaces';
 import { PomodoroTimerStyle } from './styles';
-// import IconButton from '@material-ui/core/IconButton';
+
+// import { IPost } from '../../pages/PomodoroHistory/interfaces';
+import { postPomodoroHistory } from '../../services/apiService';
 
 export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
   const {
@@ -99,7 +101,12 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
     setWorking(false);
     setResting(false);
     setMainTime(pomodoroTime);
-
+    const pomodoroResPost = async () => {
+      const res = await postPomodoroHistory({
+        email, completedCycles, numberOfPomodoros, fullWorkingTime,
+      });
+      return res;
+    };
     try {
       if (working === true) {
         dispatch(savePomodoroSummary({
@@ -107,10 +114,13 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
           totalOfPomodoros: totalOfPomodoros + numberOfPomodoros,
           totalWorkingTime: totalWorkingTime + fullWorkingTime,
         }));
+
+        pomodoroResPost();
       } else {
         throw new Error('Não foi possível salvar no store');
       }
     } catch (error) {
+      // eslint-disable-next-line
       console.log(error);
     }
   }, [pomodoroTime,
@@ -121,7 +131,8 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
     totalCycles,
     totalOfPomodoros,
     totalWorkingTime,
-    working]);
+    working,
+    email]);
 
   // const handleSave = useCallback(() => {
   //   try {
