@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
@@ -6,6 +7,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 // import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import HomeIcon from '@material-ui/icons/Home';
 import MaterialTable from 'material-table';
+import { RootState } from 'store';
 
 import { IGet } from './interfaces';
 import { useStyles, StyledBreadcrumb, useBreadcrumbsStyle } from './styles';
@@ -13,6 +15,7 @@ import { useStyles, StyledBreadcrumb, useBreadcrumbsStyle } from './styles';
 import {
   getAllPomodoro,
   delLinePomodoroHistory,
+  getPomodoroByEmail,
 } from '../../services/apiService';
 import { secondsToTime } from '../../utils/seconds-to-time';
 
@@ -28,7 +31,7 @@ const PomodoroHistory: React.FC = () => {
       pageURL: '/pomodoroHistory',
     },
   };
-
+  const { email } = useSelector((state: RootState) => state.configuration);
   const handleRouterClickBrumb = (
     // event: React.MouseEvent<Element, MouseEvent>,
     page: string
@@ -39,7 +42,8 @@ const PomodoroHistory: React.FC = () => {
   useEffect(() => {
     const getHistoryPomodoro = async (): Promise<void> => {
       // let pomodoroAll = await getAllPomodoro();
-      const { dados } = await getAllPomodoro();
+      const { dados } = await getPomodoroByEmail(email);
+      // const { dados } = await getAllPomodoro();
       const pomodoroAll = dados.map(
         ({
           numberOfPomodoros,
@@ -71,7 +75,7 @@ const PomodoroHistory: React.FC = () => {
     };
 
     getHistoryPomodoro();
-  }, [pomodoroHistoryApi]);
+  }, [pomodoroHistoryApi, email]);
   const history = useHistory();
   const classes = useStyles();
   const breadCrumbsStyles = useBreadcrumbsStyle();
