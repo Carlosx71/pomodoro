@@ -20,6 +20,7 @@ import {
   Paper,
   BottomNavigation,
   BottomNavigationAction,
+  ButtonGroup,
 } from '@material-ui/core';
 import { Pause, PlayArrow, Stop } from '@material-ui/icons';
 import CloseIcon from '@material-ui/icons/Close';
@@ -28,6 +29,7 @@ import WorkIcon from '@material-ui/icons/Work';
 import { Alert } from '@material-ui/lab';
 import FlexContainer from 'components/FlexContainer';
 // import { Timer } from 'components/Timer';
+import { Timer } from 'components/Timer';
 import { useInterval } from 'hooks/use-interval';
 import { RootState } from 'store';
 import { savePomodoroSummary } from 'store/ducks/pomodoro';
@@ -82,7 +84,7 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
 
   const steps = ['Trabalhando', 'Desacansando', 'Create an ad'];
 
-  const classeStep = useStylesStep();
+  // const classeStep = useStylesStep();
   const [activeStep, setActiveStep] = useState(0);
 
   useInterval(
@@ -226,15 +228,15 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
     const hours = zeroLeft(Math.floor(remainingTime / 3600));
     const minutes = zeroLeft(Math.floor((remainingTime % 3600) / 60));
     const seconds = zeroLeft(remainingTime % 60);
-
     return `${minutes}:${seconds}`;
   };
+
   return (
     <FlexContainer>
       <Card>
-        {/* <CardHeader
+        <CardHeader
           title={working ? 'Você está: Trabalhando' : 'Você está: Descansando'}
-        /> */}
+        />
 
         <CardContent className={classes.content}>
           <Grid container direction="column" spacing={3} justify="center">
@@ -242,8 +244,9 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
               <Grid container justify="center">
                 <Grid item>
                   <CountdownCircleTimer
+                    size={240}
                     onComplete={
-                      () => [true, mainTime] // repeat animation
+                      () => [working, mainTime] // repeat animation
                     }
                     initialRemainingTime={mainTime}
                     isPlaying={working}
@@ -254,7 +257,9 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
                       ['#A30000', 0.33],
                     ]}
                   >
-                    {() => childrenCountDown(mainTime)}
+                    {(remainingTime) => (
+                      <Timer mainTime={mainTime} working={working} />
+                    )}
                   </CountdownCircleTimer>
                   {/* <Timer mainTime={mainTime} /> */}
                 </Grid>
@@ -337,30 +342,35 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
           </div>
         </CardActions>
         <CardActions className={classes.buttons}>
-          <Tooltip title="Vai trabalhar vagabundo" arrow>
-            <Button onClick={handleWorkStart}>
-              <WorkIcon />
-            </Button>
-          </Tooltip>
-          <Tooltip title="Tá querendo vender arte na praia né?" arrow>
-            <Button
-              onClick={() => {
-                handleRestStart(false);
-              }}
-            >
-              <HotelIcon />
-            </Button>
-          </Tooltip>
-          <Tooltip title="Tá querendo ir vagabundar né?" arrow>
-            <Button disabled={!working && !resting} onClick={handlePlayPause}>
-              {timeCounting ? <Pause /> : <PlayArrow />}
-            </Button>
-          </Tooltip>
-          <Tooltip title="Deixa de ser preguiçoso" arrow>
-            <Button onClick={handleStop}>
-              <Stop />
-            </Button>
-          </Tooltip>
+          <ButtonGroup>
+            <Tooltip title="Vai trabalhar vagabundo" arrow>
+              <IconButton onClick={handleWorkStart}>
+                <WorkIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Tá querendo vender arte na praia né?" arrow>
+              <IconButton
+                onClick={() => {
+                  handleRestStart(false);
+                }}
+              >
+                <HotelIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Tá querendo ir vagabundar né?" arrow>
+              <IconButton
+                disabled={!working && !resting}
+                onClick={handlePlayPause}
+              >
+                {timeCounting ? <Pause /> : <PlayArrow />}
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Deixa de ser preguiçoso" arrow>
+              <IconButton color="primary" onClick={handleStop}>
+                <Stop />
+              </IconButton>
+            </Tooltip>
+          </ButtonGroup>
           {/* <Button
             startIcon={<Save />}
             disabled={!stopped}
