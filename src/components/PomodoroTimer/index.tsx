@@ -348,7 +348,7 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
                 <WorkIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Tá querendo vender arte na praia né?" arrow>
+            <Tooltip title="Descansar" arrow>
               <IconButton
                 onClick={() => {
                   handleRestStart(false);
