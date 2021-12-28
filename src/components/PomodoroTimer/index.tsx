@@ -343,7 +343,7 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
         </CardActions>
         <CardActions className={classes.buttons}>
           <ButtonGroup>
-            <Tooltip title="Vai trabalhar vagabundo" arrow>
+            <Tooltip title="Iniciar" arrow>
               <IconButton onClick={handleWorkStart}>
                 <WorkIcon />
               </IconButton>
@@ -357,7 +357,7 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
                 <HotelIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Tá querendo ir vagabundar né?" arrow>
+            <Tooltip title={timeCounting ? 'Pausar' : 'Continuar'} arrow>
               <IconButton
                 disabled={!working && !resting}
                 onClick={handlePlayPause}
@@ -365,33 +365,14 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
                 {timeCounting ? <Pause /> : <PlayArrow />}
               </IconButton>
             </Tooltip>
-            <Tooltip title="Deixa de ser preguiçoso" arrow>
+            <Tooltip title="Parar" arrow>
               <IconButton color="primary" onClick={handleStop}>
                 <Stop />
               </IconButton>
             </Tooltip>
           </ButtonGroup>
-          {/* <Button
-            startIcon={<Save />}
-            disabled={!stopped}
-            onClick={handleSave}
-          >
-            Salvar
-          </Button> */}
         </CardActions>
       </Card>
-      <BottomNavigation
-        value={value}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-        }}
-        showLabels
-        className={classes.bottonNav}
-      >
-        <BottomNavigationAction label="Recents" icon={<PlayArrow />} />
-        <BottomNavigationAction label="Favorites" icon={<Pause />} />
-        <BottomNavigationAction label="Nearby" icon={<Stop />} />
-      </BottomNavigation>
     </FlexContainer>
   );
 }
