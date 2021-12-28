@@ -26,6 +26,7 @@ const getPomodoroByEmail = async (email: string) => {
   try {
     const res = await axios.get<IGet[]>(`${API_URL}/${email}`);
     const { data, status } = res;
+    console.log(data);
     const dados: IGet[] = data;
     // eslint-disable-next-line
     if (status === 200 && data.length > 0) {
@@ -41,6 +42,7 @@ const getPomodoroByEmail = async (email: string) => {
 
 // POST
 const postPomodoroHistory = async (body: IPost) => {
+  console.log(body);
   const res = await axios.post(API_URL, body);
 
   if (res.status === 201) {

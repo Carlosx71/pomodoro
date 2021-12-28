@@ -1,15 +1,34 @@
+/* eslint-disable object-curly-newline */
 import React, { useCallback, useEffect, useState } from 'react';
+import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  Button, Card, CardActions, CardContent, CardHeader, Collapse, Grid, IconButton,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  Collapse,
+  Grid,
+  IconButton,
+  Tooltip,
+  Stepper,
+  Step,
+  StepLabel,
+  Typography,
+  Paper,
+  BottomNavigation,
+  BottomNavigationAction,
+  ButtonGroup,
 } from '@material-ui/core';
-import {
-  Pause, PlayArrow, Save, Stop,
-} from '@material-ui/icons';
+import { Pause, PlayArrow, Stop } from '@material-ui/icons';
 import CloseIcon from '@material-ui/icons/Close';
+import HotelIcon from '@material-ui/icons/Hotel';
+import WorkIcon from '@material-ui/icons/Work';
 import { Alert } from '@material-ui/lab';
 import FlexContainer from 'components/FlexContainer';
+// import { Timer } from 'components/Timer';
 import { Timer } from 'components/Timer';
 import { useInterval } from 'hooks/use-interval';
 import { RootState } from 'store';
@@ -17,28 +36,35 @@ import { savePomodoroSummary } from 'store/ducks/pomodoro';
 import { secondsToTime } from 'utils/seconds-to-time';
 
 import { IPomodoroStyles, IPomodoroTimerProps } from './interfaces';
-import { PomodoroTimerStyle } from './styles';
+import { PomodoroTimerStyle, useStylesStep } from './styles';
 
 // import { IPost } from '../../pages/PomodoroHistory/interfaces';
 import { postPomodoroHistory } from '../../services/apiService';
+import { zeroLeft } from '../../utils/zero-left';
+
+const getStepContent = (stepIndex: number) => {
+  switch (stepIndex) {
+    case 0:
+      return 'Trabalhando';
+    case 1:
+      return 'Descansando';
+    case 2:
+      return 'This is the bit I really care about!';
+    default:
+      return 'Unknown stepIndex';
+  }
+};
 
 export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
-  const {
-    pomodoroTime,
-    shortRestTime,
-    longRestTime,
-    cycles,
-  } = props;
+  const { pomodoroTime, shortRestTime, longRestTime, cycles } = props;
 
-  const {
-    totalCycles,
-    totalOfPomodoros,
-    totalWorkingTime,
-  } = useSelector((state: RootState) => state.pomodoro);
+  const { totalCycles, totalOfPomodoros, totalWorkingTime } = useSelector(
+    (state: RootState) => state.pomodoro
+  );
 
   const { email } = useSelector((state: RootState) => state.configuration);
   // console.log(totalCycles, totalOfPomodoros, totalWorkingTime);
-
+  const [value, setValue] = React.useState(0);
   const dispatch = useDispatch();
   const [mainTime, setMainTime] = useState(pomodoroTime);
   const [timeCounting, setTimeCounting] = useState(false);
@@ -46,7 +72,7 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
   const [resting, setResting] = useState(false);
   const [stopped, setStopped] = useState(false);
   const [cyclesQtdManager, setCyclesQtdManager] = useState(
-    new Array(cycles - 1).fill(true),
+    new Array(cycles - 1).fill(true)
   );
   const [open, setOpen] = useState(false);
   const [completedCycles, setCompletedCycles] = useState(0);
@@ -55,10 +81,19 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
 
   const styledProps: IPomodoroStyles = { isWorking: working };
   const classes = PomodoroTimerStyle(styledProps);
-  useInterval(() => {
-    setMainTime(mainTime - 1);
-    if (working) setFullWorkingTime(fullWorkingTime + 1);
-  }, timeCounting ? 1000 : null);
+
+  const steps = ['Trabalhando', 'Desacansando', 'Create an ad'];
+
+  // const classeStep = useStylesStep();
+  const [activeStep, setActiveStep] = useState(0);
+
+  useInterval(
+    () => {
+      setMainTime(mainTime - 1);
+      if (working) setFullWorkingTime(fullWorkingTime + 1);
+    },
+    timeCounting ? 1000 : null
+  );
 
   const handleWorkStart = useCallback(() => {
     if (email !== '') {
@@ -85,7 +120,8 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
       } else {
         setMainTime(shortRestTime);
       }
-    }, [longRestTime, shortRestTime],
+    },
+    [longRestTime, shortRestTime]
   );
 
   // const canSave = useCallback(() => {
@@ -103,17 +139,23 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
     setMainTime(pomodoroTime);
     const pomodoroResPost = async () => {
       const res = await postPomodoroHistory({
-        email, completedCycles, numberOfPomodoros, fullWorkingTime, data: new Date(),
+        email,
+        completedCycles,
+        numberOfPomodoros,
+        fullWorkingTime,
+        data: new Date(),
       });
       return res;
     };
     try {
       if (working === true) {
-        dispatch(savePomodoroSummary({
-          totalCycles: totalCycles + completedCycles,
-          totalOfPomodoros: totalOfPomodoros + numberOfPomodoros,
-          totalWorkingTime: totalWorkingTime + fullWorkingTime,
-        }));
+        dispatch(
+          savePomodoroSummary({
+            totalCycles: totalCycles + completedCycles,
+            totalOfPomodoros: totalOfPomodoros + numberOfPomodoros,
+            totalWorkingTime: totalWorkingTime + fullWorkingTime,
+          })
+        );
 
         pomodoroResPost();
       } else {
@@ -123,7 +165,8 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
       // eslint-disable-next-line
       console.log(error);
     }
-  }, [pomodoroTime,
+  }, [
+    pomodoroTime,
     completedCycles,
     dispatch,
     fullWorkingTime,
@@ -132,7 +175,8 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
     totalOfPomodoros,
     totalWorkingTime,
     working,
-    email]);
+    email,
+  ]);
 
   // const handleSave = useCallback(() => {
   //   try {
@@ -180,48 +224,106 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
     working,
   ]);
 
+  const childrenCountDown = (remainingTime: number): string => {
+    const hours = zeroLeft(Math.floor(remainingTime / 3600));
+    const minutes = zeroLeft(Math.floor((remainingTime % 3600) / 60));
+    const seconds = zeroLeft(remainingTime % 60);
+    return `${minutes}:${seconds}`;
+  };
+
   return (
     <FlexContainer>
       <Card>
         <CardHeader
           title={working ? 'Você está: Trabalhando' : 'Você está: Descansando'}
         />
+
         <CardContent className={classes.content}>
-          <Grid container justify="space-around" spacing={3}>
+          <Grid container direction="column" spacing={3} justify="center">
             <Grid item>
-              <Timer mainTime={mainTime} />
+              <Grid container justify="center">
+                <Grid item>
+                  <CountdownCircleTimer
+                    size={240}
+                    onComplete={
+                      () => [working, mainTime] // repeat animation
+                    }
+                    initialRemainingTime={mainTime}
+                    isPlaying={working}
+                    duration={mainTime}
+                    colors={[
+                      ['#004777', 0.33],
+                      ['#F7B801', 0.33],
+                      ['#A30000', 0.33],
+                    ]}
+                  >
+                    {(remainingTime) => (
+                      <Timer mainTime={mainTime} working={working} />
+                    )}
+                  </CountdownCircleTimer>
+                  {/* <Timer mainTime={mainTime} /> */}
+                </Grid>
+              </Grid>
             </Grid>
             <Grid item>
-              <Grid container spacing={3} direction="column" justify="flex-end">
+              <Grid container justify="center" spacing={1}>
                 <Grid item>
-                  <Card elevation={2}>
-                    <CardHeader title="Ciclos" />
-                    <CardContent>{completedCycles}</CardContent>
-                  </Card>
+                  <Tooltip title="Ciclos de pomodoros" arrow>
+                    <Paper elevation={2} className={classes.paper}>
+                      <div>
+                        <Typography
+                          variant="button"
+                          display="block"
+                          gutterBottom
+                        >
+                          {completedCycles}
+                        </Typography>
+                        <Typography
+                          variant="button"
+                          display="block"
+                          gutterBottom
+                        >
+                          Ciclos
+                        </Typography>
+                      </div>
+                    </Paper>
+                  </Tooltip>
                 </Grid>
                 <Grid item>
-                  <Card elevation={2}>
-                    <CardHeader title="Horas Totais" />
-                    <CardContent>{secondsToTime(fullWorkingTime)}</CardContent>
-                  </Card>
+                  <Paper elevation={2} className={classes.paper}>
+                    <div>
+                      <Typography variant="button" display="block" gutterBottom>
+                        {secondsToTime(fullWorkingTime)}
+                      </Typography>
+                      <Typography variant="button" display="block" gutterBottom>
+                        Horas Totais
+                      </Typography>
+                    </div>
+                  </Paper>
                 </Grid>
                 <Grid item>
-                  <Card elevation={2}>
-                    <CardHeader title="Pomodoros" />
-                    <CardContent>{numberOfPomodoros}</CardContent>
-                  </Card>
+                  <Paper elevation={2} className={classes.paper}>
+                    <div>
+                      <Typography variant="button" display="block" gutterBottom>
+                        {numberOfPomodoros}
+                      </Typography>
+                      <Typography variant="button" display="block" gutterBottom>
+                        Pomodoros
+                      </Typography>
+                    </div>
+                  </Paper>
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
-
         </CardContent>
         <CardActions className={classes.buttons}>
           <div className={classes.root}>
             <Collapse in={open}>
               <Alert
                 severity="error"
-                action={(
+                action={
+                  // eslint-disable-next-line react/jsx-wrap-multilines
                   <IconButton
                     aria-label="close"
                     color="inherit"
@@ -232,7 +334,7 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
                   >
                     <CloseIcon fontSize="inherit" />
                   </IconButton>
-          )}
+                }
               >
                 E-mail não informado. Verifique as configurações
               </Alert>
@@ -240,26 +342,36 @@ export default function PomodoroTimer(props: IPomodoroTimerProps): JSX.Element {
           </div>
         </CardActions>
         <CardActions className={classes.buttons}>
-          <Button onClick={handleWorkStart}>Trabalhar</Button>
-          <Button onClick={() => { handleRestStart(false); }}>Descansar</Button>
-          <Button
-            disabled={!working && !resting}
-            onClick={handlePlayPause}
-          >
-            {
-              timeCounting ? <Pause /> : <PlayArrow />
-            }
-          </Button>
-          <Button onClick={handleStop}><Stop /></Button>
-          {/* <Button
-            startIcon={<Save />}
-            disabled={!stopped}
-            onClick={handleSave}
-          >
-            Salvar
-          </Button> */}
+          <ButtonGroup>
+            <Tooltip title="Iniciar" arrow>
+              <IconButton onClick={handleWorkStart}>
+                <WorkIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Descansar" arrow>
+              <IconButton
+                onClick={() => {
+                  handleRestStart(false);
+                }}
+              >
+                <HotelIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={timeCounting ? 'Pausar' : 'Continuar'} arrow>
+              <IconButton
+                disabled={!working && !resting}
+                onClick={handlePlayPause}
+              >
+                {timeCounting ? <Pause /> : <PlayArrow />}
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Parar" arrow>
+              <IconButton color="primary" onClick={handleStop}>
+                <Stop />
+              </IconButton>
+            </Tooltip>
+          </ButtonGroup>
         </CardActions>
-
       </Card>
     </FlexContainer>
   );

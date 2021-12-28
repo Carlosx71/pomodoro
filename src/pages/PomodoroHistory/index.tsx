@@ -13,7 +13,6 @@ import { IGet } from './interfaces';
 import { useStyles, StyledBreadcrumb, useBreadcrumbsStyle } from './styles';
 
 import {
-  getAllPomodoro,
   delLinePomodoroHistory,
   getPomodoroByEmail,
 } from '../../services/apiService';
